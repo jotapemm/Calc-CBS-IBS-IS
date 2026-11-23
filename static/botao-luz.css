@@ -1,0 +1,98 @@
+/* ═══════════════════════════════════════════════════════════════════
+   A luz que nasce ONDE o ponteiro entrou — o mesmo botão do HUB
+   (frontend/src/App.css, .btn-luz).
+
+   O JS faz uma coisa só: guardar a coordenada da entrada em --mx/--my.
+   Quem cresce o círculo é este CSS, no ::before, então a animação roda
+   no compositor e nada re-renderiza a cada pixel do mouse.
+
+   A posição é lida no enter e no leave, nunca no move. No move o círculo
+   perseguiria o ponteiro e viraria outra coisa; só nas duas bordas, ele
+   cresce de onde a mão chegou e encolhe para onde ela saiu.
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+    /* Verde do HUB, igual ao da trama, para as duas coisas combinarem na
+       mesma tela. O verde desta automação é #2fd96a — trocar aqui é uma
+       linha, e volta tudo ao tom antigo. */
+    --luz: #00C48C;
+}
+
+.btn-luz {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    /* prende o z-index negativo do ::before aqui dentro */
+
+    /* SEM borda. O .btn base tem 1px, e o overflow:hidden recorta o
+       círculo na caixa de PADDING — a faixa da borda nunca é pintada por
+       ele. Resultado: um anel claro de 1px em volta do verde, e um
+       piscar quando o ponteiro sai, porque o .btn transiciona
+       border-color em .15s enquanto o círculo leva .42s.
+
+       O padding ganha o 1px que a borda tinha para o botão não mudar de
+       tamanho: com box-sizing border-box, 9+1 = 10 e 18+1 = 19. Medido
+       antes e depois: 173x36 nos dois. */
+    border: 0;
+    padding: 10px 19px;
+}
+
+.btn-luz::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    left: var(--mx, 50%);
+    top: var(--my, 50%);
+
+    /* O círculo nasce no TAMANHO FINAL e é encolhido por scale, em vez de
+       nascer com width:0 e crescer.
+
+       Isto é o conserto da animação travada. Animar `width` não roda no
+       compositor: cada quadro refaz layout e pintura do pseudo-elemento,
+       e nesta tela isso disputa o quadro com a trama de fundo, que
+       carimba ~7.700 sprites. `transform` roda no compositor e não
+       refaz layout nenhum.
+
+       Elipse não é risco aqui: o elemento já é quadrado (aspect-ratio) e
+       scale uniforme não deforma quadrado. */
+    width: 240%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+
+    background: var(--luz);
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform .42s cubic-bezier(.22, .61, .36, 1);
+    will-change: transform;
+}
+
+/* Entrando por um canto, o círculo precisa do DOBRO da diagonal para
+   cobrir tudo — daí 240%, que sobra em qualquer botão desta tela. */
+.btn-luz:hover:not(:disabled)::before,
+.btn-luz:focus-visible:not(:disabled)::before {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.btn-luz:disabled::before {
+    transform: translate(-50%, -50%) scale(0);
+}
+
+/* O .btn-primary daqui levantava o botão no hover (translate + sombra) e
+   trocava o fundo inteiro de uma vez. Agora quem pinta é o círculo, então
+   o levanta-e-sombra sai: dois movimentos ao mesmo tempo brigam.
+
+   O texto fica PRETO o tempo todo, e isso é exigência do círculo, não
+   gosto: o rótulo não se move enquanto a onda passa por baixo dele, então
+   a cor dele precisa funcionar sobre o branco de repouso E sobre o verde
+   que chega. O claro de antes sumiria no branco. */
+.btn-luz:hover:not(:disabled) {
+    background: var(--accent);
+    color: #000;
+    transform: none;
+    box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .btn-luz::before {
+        transition: none;
+    }
+}
