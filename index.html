@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Calculadora CBS · IBS · IS (via API)</title>
+  <style>
+    :root {
+      box-sizing: border-box;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+      --bg: #eef2f1;
+      --sf: #fff;
+      --tx: #12201c;
+      --mu: #5b6b66;
+      --ln: #d3ddda;
+      --ac: #0b6b52;
+      --ac2: #e6f3ee;
+      --wa: #8a5a00
+    }
+
+    @media (prefers-color-scheme:dark) {
+      :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --bg: #0f1815;
+        --sf: #16221e;
+        --tx: #e6efec;
+        --mu: #92a49e;
+        --ln: #2a3a35;
+        --ac: #4cc79e;
+        --ac2: #173229;
+        --wa: #e0b45a
+      }
+    }
+
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #0f1815;
+      --sf: #16221e;
+      --tx: #e6efec;
+      --mu: #92a49e;
+      --ln: #2a3a35;
+      --ac: #4cc79e;
+      --ac2: #173229;
+      --wa: #e0b45a
+    }
+
+    html {
+      scroll-padding-top: env(safe-area-inset-top, 0px)
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--tx);
+      font: 15px/1.5 "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+      font-variant-numeric: tabular-nums
+    }
+
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 20px 16px 48px
+    }
+
+    h1 {
+      font-size: 26px;
+      margin: 0 0 4px;
+      letter-spacing: -.02em
+    }
+
+    h2 {
+      font-size: 16px;
+      margin: 0 0 10px
+    }
+
+    .sub {
+      color: var(--mu);
+      margin: 0 0 20px;
+      max-width: 64ch
+    }
+
+    .card {
+      background: var(--sf);
+      border: 1px solid var(--ln);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 14px
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px
+    }
+
+    .f {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1 1 140px;
+      min-width: 0
+    }
+
+    label {
+      font-size: 13px;
+      color: var(--mu)
+    }
+
+    input,
+    select,
+    button {
+      font: inherit;
+      color: var(--tx);
+      background: var(--bg);
+      border: 1px solid var(--ln);
+      border-radius: 7px;
+      padding: 8px 10px;
+      min-width: 0;
+      width: 100%
+    }
+
+    input:focus,
+    select:focus,
+    button:focus-visible {
+      outline: 2px solid var(--ac);
+      outline-offset: 1px
+    }
+
+    input:disabled {
+      opacity: .6
+    }
+
+    button {
+      width: auto;
+      cursor: pointer;
+      background: var(--ac);
+      color: #fff;
+      border-color: var(--ac);
+      font-weight: 600
+    }
+
+    @media (prefers-color-scheme:dark) {
+      :root:not([data-theme="light"]) button {
+        color: #06201a
+      }
+    }
+
+    button.g {
+      background: transparent;
+      color: var(--tx);
+      border-color: var(--ln);
+      font-weight: 500
+    }
+
+    .it {
+      border-left: 3px solid var(--ac)
+    }
+
+    .hd {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px
+    }
+
+    .hd b {
+      font-size: 15px
+    }
+
+    .res {
+      margin-top: 12px;
+      padding: 12px;
+      background: var(--ac2);
+      border-radius: 8px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px
+    }
+
+    .res div span {
+      display: block;
+      font-size: 12px;
+      color: var(--mu)
+    }
+
+    .res div b {
+      font-size: 17px
+    }
+
+    .note {
+      font-size: 13px;
+      color: var(--mu);
+      margin: 8px 0 0
+    }
+
+    .wr {
+      color: var(--wa)
+    }
+
+    details {
+      margin-top: 8px;
+      font-size: 13px
+    }
+
+    pre {
+      white-space: pre-wrap;
+      margin: 6px 0 0;
+      color: var(--mu);
+      font: 12.5px/1.5 ui-monospace, Consolas, monospace
+    }
+
+    .tot {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px
+    }
+
+    .tot div {
+      border: 1px solid var(--ln);
+      border-radius: 8px;
+      padding: 12px
+    }
+
+    .tot span {
+      font-size: 13px;
+      color: var(--mu)
+    }
+
+    .tot b {
+      display: block;
+      font-size: 22px;
+      margin-top: 2px
+    }
+
+    .big b {
+      color: var(--ac)
+    }
+
+    .acts {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px
+    }
+
+    .bd {
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 99px;
+      background: var(--ac2);
+      color: var(--ac);
+      font-weight: 600
+    }
+
+    .bd.e {
+      background: transparent;
+      border: 1px solid var(--wa);
+      color: var(--wa)
+    }
+
+    .er {
+      margin: 8px 0 0;
+      padding: 10px;
+      border: 1px solid var(--wa);
+      border-radius: 8px;
+      font-size: 14px
+    }
+
+    .er b {
+      color: var(--wa)
+    }
+
+    .top {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: end
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h1>Calculadora de CBS, IBS e Imposto Seletivo</h1>
+    <p class="sub">Monta a operação e envia para a API do regime geral
+      (<code>POST /calculadora/observabilidade/regime-geral</code>). Todos os valores vêm do backend, sem cálculo no
+      navegador.</p>
+    <section class="card">
+      <h2>Operação</h2>
+      <div class="row">
+        <div class="f" style="flex-basis:260px"><label for="api">Endereço da API (vazio = este servidor)</label><input
+            id="api" placeholder="http://localhost:8080" value=""></div>
+        <div class="f"><label for="dt">Data do fato gerador</label><input id="dt" type="date" value="2027-03-10"></div>
+        <div class="f"><label for="uf">UF</label><input id="uf" maxlength="2" value="RS"></div>
+        <div class="f"><label for="mu">Município (IBGE)</label><input id="mu" inputmode="numeric" value="4314902"></div>
+      </div>
+      <div class="row" id="rt" style="margin-top:12px">
+        <div class="f"><label for="aC">Alíquota CBS (%)</label><input id="aC" type="number" step="0.01" value="8.8">
+        </div>
+        <div class="f"><label for="aU">Alíquota IBS estadual (%)</label><input id="aU" type="number" step="0.01"
+            value="0.05"></div>
+        <div class="f"><label for="aM">Alíquota IBS municipal (%)</label><input id="aM" type="number" step="0.01"
+            value="0.05"></div>
+      </div>
+      <p class="note" id="rn"></p>
+    </section>
+    <div id="items"></div>
+    <div class="acts" style="margin:0 0 14px"><button class="g" id="add">Adicionar item</button><button id="go">Calcular
+        na API</button><span class="note" id="st" role="status"></span></div>
+    <section class="card" id="out" hidden>
+      <h2>Resultado</h2>
+      <div id="res"></div>
+      <h2 style="margin-top:16px">Total da operação</h2>
+      <div class="tot" id="tot"></div>
+      <p class="note" id="wn"></p>
+    </section>
+  </main>
+  <script>
+    const D = [["000001", "000", "Situações tributadas integralmente pelo IBS e CBS."], ["000002", "000", "Exploração de via"], ["000003", "000", "Regime automotivo - projetos incentivados (art. 311)"], ["000004", "000", "Regime automotivo - projetos incentivados (art. 312)"], ["000005", "000", "Operação com EAC destinado à mistura com gasolina A, mas com saída do biocombu…"], ["000006", "000", "Situações tributadas integralmente pelo IBS e CBS realizadas por autônomo"], ["011001", "011", "Planos de assistência funerária."], ["011002", "011", "Planos de assistência à saúde"], ["011003", "011", "Intermediação de planos de assistência à saúde"], ["011004", "011", "Concursos e prognósticos"], ["011005", "011", "Planos de assistência à saúde de animais domésticos"], ["200001", "200", "Serviços de transporte de bens até as zonas de processamento de exportação e b…"], ["200002", "200", "Fornecimento ou importação para produtor rural não contribuinte ou TAC"], ["200003", "200", "Vendas de produtos destinados à alimentação humana (Anexo I)"], ["200004", "200", "Fornecimento de dispositivos médicos (Anexo XII)"], ["200005", "200", "Fornecimento de dispositivos médicos para órgãos da administração pública e en…"], ["200006", "200", "Situação de emergência de saúde pública reconhecida pelo Poder público"], ["200007", "200", "Fornecimento dos dispositivos de acessibilidade próprios para pessoas com defi…"], ["200008", "200", "Fornecimento dos dispositivos de acessibilidade próprios para pessoas com defi…"], ["200009", "200", "Fornecimento dos medicamentos registrados na Anvisa"], ["200010", "200", "Fornecimento dos medicamentos registrados na Anvisa, adquiridos por órgãos da …"], ["200011", "200", "Fornecimento das composições para nutrição enteral e parenteral quando adquiri…"], ["200012", "200", "Situação de emergência de saúde pública reconhecida pelo Poder público"], ["200013", "200", "Fornecimento de tampões higiênicos, absorventes higiênicos internos ou externo…"], ["200014", "200", "Fornecimento dos produtos hortícolas, frutas e ovos (Anexo XV)"], ["200015", "200", "Venda de automóveis de passageiros de fabricação nacional adquiridos por motor…"], ["200016", "200", "Prestação de serviços de pesquisa e desenvolvimento por Instituição Científica…"], ["200017", "200", "Operações relacionadas ao FGTS"], ["200018", "200", "Operações de resseguro e retrocessão"], ["200019", "200", "Importador dos serviços financeiros contribuinte"], ["200020", "200", "Operação praticada por sociedades cooperativas optantes por regime específico …"], ["200021", "200", "Serviços de transporte público coletivo de passageiros ferroviário e hidroviár…"], ["200022", "200", "Operação originada fora da ZFM que destine bem material industrializado a cont…"], ["200023", "200", "Operação realizada por indústria incentivada que destine bem material intermed…"], ["200024", "200", "Operação originada fora das Áreas de Livre Comércio destinadas a contribuinte …"], ["200025", "200", "Fornecimento dos serviços de educação relacionados ao Programa Universidade pa…"], ["200026", "200", "Locação de imóveis localizados nas zonas reabilitadas"], ["200027", "200", "Operações de locação, cessão onerosa e arrendamento de bens imóveis"], ["200028", "200", "Fornecimento dos serviços de educação (Anexo II)"], ["200029", "200", "Fornecimento dos serviços de saúde humana (Anexo III)"], ["200030", "200", "Venda dos dispositivos médicos (Anexo IV)"], ["200031", "200", "Fornecimento dos dispositivos de acessibilidade próprios para pessoas com defi…"], ["200032", "200", "Fornecimento dos medicamentos registrados na Anvisa ou produzidos por farmácia…"], ["200033", "200", "Fornecimento das composições para nutrição enteral e parenteral (Anexo VI)"], ["200034", "200", "Fornecimento dos alimentos destinados ao consumo humano (Anexo VII)"], ["200035", "200", "Fornecimento dos produtos de higiene pessoal e limpeza (Anexo VIII)"], ["200036", "200", "Fornecimento de produtos agropecuários, aquícolas, pesqueiros, florestais e ex…"], ["200037", "200", "Fornecimento de serviços ambientais de conservação ou recuperação da vegetação…"], ["200038", "200", "Fornecimento dos insumos agropecuários e aquícolas (Anexo IX)"], ["200039", "200", "Fornecimento dos bens e serviços relacionados com produções nacionais artístic…"], ["200040", "200", "Fornecimento de serviços de comunicação institucional à administração pública"], ["200041", "200", "Fornecimento de serviço de educação desportiva (art. 141. I)"], ["200042", "200", "Fornecimento de serviço de gestão e exploração do desporto (art. 141. II)"], ["200043", "200", "Fornecimento à administração pública dos serviços e dos bens relativos à sober…"], ["200044", "200", "Operações e prestações de serviços de segurança da informação e segurança cibe…"], ["200045", "200", "Operações relacionadas a projetos de reabilitação urbana de zonas históricas e…"], ["200046", "200", "Operações com bens imóveis"], ["200047", "200", "Bares e Restaurantes"], ["200048", "200", "Hotelaria, Parques de Diversão e Parques Temáticos"], ["200049", "200", "Transporte coletivo de passageiros rodoviário, ferroviário e hidroviário"], ["200050", "200", "Serviços de transporte aéreo regional coletivo de passageiros ou de carga"], ["200051", "200", "Agências de Turismo"], ["200052", "200", "Prestação de serviços de profissões intelectuais"], ["200053", "200", "Fornecimento de medicamentos registrados na Anvisa, quando  classificados como…"], ["200054", "200", "Fornecimento de bem material pela cooperativa de produção agropecuária a assoc…"], ["200055", "200", "Fornecimento dos serviços com redução de alíquota de 60% realizado por autônom…"], ["200056", "200", "Fornecimento dos serviços com redução de alíquota de 30% realizado por autônom…"], ["222001", "222", "Transporte internacional de passageiros, caso os trechos de ida e volta sejam …"], ["510001", "510", "Operações, sujeitas a diferimento, com energia elétrica, relativas à importaçã…"], ["515001", "515", "Operações, sujeitas a diferimento, com insumos agropecuários e aquícolas (Anex…"]];
+    const $ = s => document.querySelector(s), N = v => Number(v || 0);
+    const f2 = v => N(v).toLocaleString("pt-BR", {style: "currency", currency: "BRL"});
+    const pc = v => N(v).toLocaleString("pt-BR", {minimumFractionDigits: 2, maximumFractionDigits: 4}) + "%";
+    const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+    const base = () => $("#api").value.trim().replace(/\/+$/, "") + "/api/calculadora";
+    const novo = c => ({c, doc: "", bc: 0, qt: "", un: "", is: false, bis: 0, ad: 0});
+    let items = [Object.assign(novo("000001"), {doc: "22030000", bc: 1000, qt: 12, un: "LT"}), Object.assign(novo("200028"), {doc: "122011200", bc: 1200})];
+    const ano = () => +($("#dt").value || "2027").slice(0, 4);
+    function rates() {const t = ano() <= 2026; $("#rt").hidden = t; $("#rn").textContent = t ? "Em 2026 (ano de teste) a API usa as alíquotas fixas e não aceita alíquotas informadas." : "A partir de 2027 as alíquotas nominais são obrigatórias; os valores acima são só um exemplo."}
+    function draw() {
+      rates(); $("#items").innerHTML = items.map((it, i) => {
+        const opts = D.map(d => `<option value="${d[0]}"${d[0] === it.c ? " selected" : ""}>${d[0]} · CST ${d[1]} · ${esc(d[2])}</option>`).join("");
+        return `<section class="card it" data-i="${i}"><div class="hd"><b>Item ${i + 1}</b>${items.length > 1 ? `<button class="g" data-a="rm">Remover</button>` : ""}</div>
+ <div class="row"><div class="f" style="flex-basis:100%"><label>Classificação tributária (cClassTrib)</label><select data-k="c">${opts}</select></div>
+ <div class="f"><label>NCM (8 dígitos) ou NBS (9)</label><input data-k="doc" inputmode="numeric" maxlength="9" value="${esc(it.doc)}"></div>
+ <div class="f"><label>Base de cálculo (R$)</label><input data-k="bc" type="number" step="0.01" min="0" value="${it.bc}" ${it.is ? "disabled" : ""}></div>
+ <div class="f"><label>Quantidade</label><input data-k="qt" type="number" step="any" min="0" value="${esc(it.qt)}"></div>
+ <div class="f"><label>Unidade (ex.: KG, LT)</label><input data-k="un" maxlength="6" value="${esc(it.un)}"></div></div>
+ <div class="row" style="margin-top:10px"><div class="f"><label><input type="checkbox" data-k="is" ${it.is ? "checked" : ""} style="width:auto"> Sujeito a Imposto Seletivo</label></div>
+ ${it.is ? `<div class="f"><label>Base do IS (R$)</label><input data-k="bis" type="number" step="0.01" min="0" value="${it.bis}"></div><div class="f"><label>IS ad valorem (%)</label><input data-k="ad" type="number" step="0.01" min="0" value="${it.ad}"></div>` : ""}</div></section>`
+      }).join("")
+    }
+    function payload() {
+      const R = {cbs: N($("#aC").value), ibsEstadual: N($("#aU").value), ibsMunicipal: N($("#aM").value)};
+      return {
+        id: "simulacao-" + Date.now(), versao: "1.0.0", dhFatoGerador: $("#dt").value + "T10:00:00-03:00", municipio: N($("#mu").value), uf: $("#uf").value.toUpperCase(),
+        itens: items.map((it, i) => {
+          const cl = D.find(d => d[0] === it.c), o = {numero: i + 1};
+          if (it.doc.length === 8) o.ncm = it.doc; else if (it.doc.length === 9) o.nbs = it.doc;
+          o.cst = cl[1]; o.cClassTrib = cl[0];
+          if (it.qt !== "" && it.un) {o.quantidade = N(it.qt); o.unidade = it.un.toUpperCase()}
+          const an = {...(ano() >= 2027 ? R : {})};
+          if (it.is) {
+            const v = Math.round(N(it.bis) * N(it.ad)) / 100; o.impostoSeletivo = {cst: "000", cClassTrib: "000001", baseCalculo: N(it.bis), impostoInformado: v};
+            if (o.quantidade) {o.impostoSeletivo.quantidade = o.quantidade; o.impostoSeletivo.unidade = o.unidade}
+            if (ano() >= 2027) an.impostoSeletivo = {adValorem: N(it.ad)}
+          } else o.baseCalculo = N(it.bc);
+          if (ano() >= 2027) o.aliquotasNominais = an; return o
+        })
+      }
+    }
+    function item(o) {
+      const t = o.tribCalc || {}, g = t.IBSCBS?.gIBSCBS, ok = !o.erros;
+      const head = `<div class="hd"><b>Item ${o.nObj}</b><span class="bd${ok ? "" : " e"}">${esc(o.estadoItem)}</span></div>`;
+      if (!ok) return `<div class="card">${head}${o.erros.map(e => `<div class="er"><b>${esc(e.code)}</b> ${esc(e.title)}<br>${esc(e.detail)}</div>`).join("")}</div>`;
+      const mem = [t.IS?.memoriaCalculo, g?.gCBS?.memoriaCalculo, g?.gIBSUF?.memoriaCalculo, g?.gIBSMun?.memoriaCalculo].filter(Boolean).join("\n\n");
+      return `<div class="card">${head}<div class="res"><div><span>Base CBS/IBS</span><b>${f2(g?.vBC)}</b></div>${t.IS ? `<div><span>IS</span><b>${f2(t.IS.vIS)}</b></div>` : ""}
+ <div><span>CBS (${pc(g?.gCBS?.gRed?.pAliqEfet ?? g?.gCBS?.pCBS)})</span><b>${f2(g?.gCBS?.vCBS)}</b></div><div><span>IBS (UF + município)</span><b>${f2(g?.vIBS)}</b></div>
+ <div><span>Redução de alíquota</span><b>${pc(g?.gCBS?.gRed?.pRedAliq)}</b></div></div>
+ <details><summary>Memória de cálculo e resposta completa</summary><pre>${esc(mem)}</pre><pre>${esc(JSON.stringify(o, null, 2))}</pre></details></div>`
+    }
+    async function calc() {
+      const st = $("#st"); const bad = items.findIndex(it => ![8, 9].includes(it.doc.length));
+      if (bad >= 0) {st.textContent = `Informe o NCM (8 dígitos) ou NBS (9) do item ${bad + 1}.`; return }
+      st.textContent = "Calculando…"; $("#go").disabled = true;
+      try {
+        const r = await fetch(base() + "/observabilidade/regime-geral", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(payload())});
+        const txt = await r.text(); let j; try {j = JSON.parse(txt)} catch (_) {j = null}
+        if (!r.ok || !j?.objetos) {st.textContent = `A API respondeu ${r.status}.`; $("#out").hidden = false; $("#res").innerHTML = `<div class="er"><b>${esc(j?.title || "Erro")}</b><br>${esc(j?.detail || txt.slice(0, 600))}</div>`; $("#tot").innerHTML = ""; $("#wn").textContent = ""; return }
+        const T = j.total?.tribCalc || {}, ib = T.IBSCBSTot; st.textContent = "Cálculo concluído."; $("#out").hidden = false;
+        $("#res").innerHTML = j.objetos.map(item).join("");
+        $("#tot").innerHTML = [["Base CBS/IBS", ib?.vBCIBSCBS], ["Imposto Seletivo", T.ISTot?.vIS], ["CBS", ib?.gCBS?.vCBS], ["IBS", ib?.gIBS?.vIBS]].map(([l, v]) => `<div><span>${l}</span><b>${f2(v)}</b></div>`).join("");
+        const w = r.headers.get("x-warning-dados-simulados"); $("#wn").textContent = (w ? w + " " : "") + "Os totais somam apenas os itens calculados."
+      }
+      catch (e) {st.textContent = "Não foi possível falar com a API."; $("#out").hidden = false; $("#res").innerHTML = `<div class="er"><b>Sem conexão</b><br>Confirme que o backend está em execução e que esta página foi aberta pelo <code>servidor.js</code> (ou informe o endereço da API acima, se o backend permitir CORS).</div>`}
+      finally {$("#go").disabled = false}
+    }
+    document.addEventListener("input", e => {const k = e.target.dataset.k, i = e.target.closest("[data-i]")?.dataset.i; if (k && i !== undefined) {const c = e.target.type === "checkbox"; items[i][k] = c ? e.target.checked : e.target.value; if (c || e.target.tagName === "SELECT") draw()} else if (e.target.id === "dt") rates()});
+    document.addEventListener("click", e => {if (e.target.dataset.a === "rm") {items.splice(+e.target.closest("[data-i]").dataset.i, 1); draw()} });
+    $("#add").onclick = () => {items.push(novo("000001")); draw()}; $("#go").onclick = calc; draw();
+  </script>
+</body>
+
+</html>
