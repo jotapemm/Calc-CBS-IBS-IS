@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/calculadora/:caminho*",
+      "destination": "/api/calculadora?caminho=:caminho*"
+    }
+  ]
+}
