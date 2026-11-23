@@ -1,0 +1,24 @@
+/* ═══════════════════════════════════════════════════════════════════
+   Cores da trama de fundo (as "ondas" do HUB).
+
+   Só isto: quatro tokens. O posicionamento do <canvas id="dots"> já
+   existe no CSS de cada página, com a máscara radial que suaviza as
+   bordas — e essa máscara é identidade daqui, então não se mexe.
+
+   Os valores são os do HUB (src/web/static/css/base.css), já resolvidos
+   para o tema ESCURO, porque estas telas são escuras e só. No hub eles
+   vivem dentro de light-dark(); aqui não há seletor de tema para
+   alimentar, e hex puro é o que o UPTema.cor() consegue ler sem
+   depender do tema.js inteiro.
+
+   Trocar o verde: --trama-alto e --brilho são os dois que importam. O
+   verde desta automação é #2fd96a; o do HUB é #00C48C. Está no do HUB
+   de propósito — a ideia é que as telas se reconheçam como da mesma
+   casa.
+   ═══════════════════════════════════════════════════════════════════ */
+:root {
+    --trama-baixo: #C8CDCA;
+    --trama-meio: #FFFFFF;
+    --trama-alto: #00C48C;
+    --brilho: #7BFFD4;
+}
