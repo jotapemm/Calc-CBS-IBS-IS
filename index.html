@@ -898,7 +898,7 @@
         const w = r.headers.get("x-warning-dados-simulados"); $("#wn").textContent = (w ? w + " " : "") + "Os totais somam apenas os itens calculados.";
         mostrar()
       }
-      catch (e) {st.textContent = "Não foi possível falar com a API."; $("#res").innerHTML = `<div class="er"><b>Sem conexão</b><br>Confirme que o backend está em execução e que esta página foi aberta pelo <code>servidor.js</code> (ou informe o endereço da API acima, se o backend permitir CORS).</div>`; $("#tot").innerHTML = ""; $("#wn").textContent = ""; mostrar()}
+      catch (e) {st.textContent = "Não foi possível falar com a API."; $("#res").innerHTML = `<div class="er"><b>Sem conexão</b><br>Confirme que a API da calculadora está no ar. Com o endereço vazio, a página usa a função da Vercel deste site; um endereço preenchido só funciona se aquela API permitir CORS.</div>`; $("#tot").innerHTML = ""; $("#wn").textContent = ""; mostrar()}
       finally {go.disabled = false; go.innerHTML = BOTAO}
     }
     document.addEventListener("input", e => {const k = e.target.dataset.k, i = e.target.closest("[data-i]")?.dataset.i; if (k && i !== undefined) {const c = e.target.type === "checkbox"; items[i][k] = c ? e.target.checked : e.target.value; if (c || e.target.tagName === "SELECT") draw()} else if (e.target.id === "dt") rates()});
