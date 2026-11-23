@@ -884,6 +884,15 @@
  <details><summary>Memória de cálculo e resposta completa</summary><pre>${esc(mem)}</pre><pre>${esc(JSON.stringify(o, null, 2))}</pre></details></div></article>`
     }
     function mostrar() {$("#totp").hidden = !$("#tot").innerHTML; $("#out").hidden = false; $("#nav-out").hidden = false; $("#out").scrollIntoView({block: "start"})}
+    /* A API manda só o código do aviso (enum TipoWarningDadosSimulados da Receita). */
+    const AVISOS = {
+      1: "Cálculo feito com dados simulados.",
+      2: "Cálculo feito com dados simulados para compras governamentais.",
+      3: "Imposto Seletivo calculado com dados simulados.",
+      4: "Compras governamentais e Imposto Seletivo calculados com dados simulados.",
+      5: "Cálculo feito com alíquotas fictícias.",
+      6: "Cálculo simulado com as alíquotas nominais informadas."
+    };
     async function calc() {
       const st = $("#st"), go = $("#go"); const bad = items.findIndex(it => ![8, 9].includes(it.doc.length));
       if (bad >= 0) {st.textContent = `Informe o NCM (8 dígitos) ou NBS (9) do item ${bad + 1}.`; return }
@@ -895,7 +904,7 @@
         const T = j.total?.tribCalc || {}, ib = T.IBSCBSTot; st.textContent = "Cálculo concluído.";
         $("#res").innerHTML = j.objetos.map(item).join("");
         $("#tot").innerHTML = [["Base CBS/IBS", ib?.vBCIBSCBS], ["Imposto Seletivo", T.ISTot?.vIS], ["CBS", ib?.gCBS?.vCBS], ["IBS", ib?.gIBS?.vIBS]].map(([l, v]) => `<div><span>${l}</span><b>${f2(v)}</b></div>`).join("");
-        const w = r.headers.get("x-warning-dados-simulados"); $("#wn").textContent = (w ? w + " " : "") + "Os totais somam apenas os itens calculados.";
+        const w = AVISOS[r.headers.get("x-warning-dados-simulados")]; $("#wn").textContent = (w ? w + " " : "") + "Os totais somam apenas os itens calculados.";
         mostrar()
       }
       catch (e) {st.textContent = "Não foi possível falar com a API."; $("#res").innerHTML = `<div class="er"><b>Sem conexão</b><br>Confirme que a API da calculadora está no ar. Com o endereço vazio, a página usa a função da Vercel deste site; um endereço preenchido só funciona se aquela API permitir CORS.</div>`; $("#tot").innerHTML = ""; $("#wn").textContent = ""; mostrar()}
